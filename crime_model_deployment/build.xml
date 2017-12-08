@@ -1,0 +1,67 @@
+<?xml  version="1.0" encoding="UTF-8"?>
+
+<project name="spring" default="war" basedir=".">
+
+	<property file="build.properties"/>
+	<property name="src.dir" value="src"/>
+	<property name="test.dir" value="test"/>
+	<property name="build.dir" value="bin/classes"/>
+	<property name="lib.dir" value="WebContent/WEB-INF/lib"/>
+	<property name="dist.dir" value="dist"/>
+	
+		<path id="compile.classpath">
+			<fileset dir="${lib.dir}">
+				<include name="*.jar"/>
+			</fileset>
+		</path>
+		<target name="clean">
+			<delete dir="${build.dir}"/>
+			<delete dir="${dist.dir}"/>
+		</target>
+		<target name="init" depends="clean">
+			<mkdir dir="${build.dir}"/>
+			<mkdir dir="${dist.dir}"/>
+		</target>
+		<target name="compile" depends="init,if_unix,if_windows">
+		</target>
+		<target name="checkos">
+			<condition property="isWindows" value="true">
+				<os family="windows"/> 
+			</condition>
+			<condition property="isLinux" value="true">
+				<os family="unix"/>
+			</condition>
+		</target> 
+		<target name="if_windows" depends="checkos" if="isWindows">
+			<javac target="1.8" source="1.8" destdir="${build.dir}" debug="true" srcdir="${src.dir}">
+				<classpath refid="compile.classpath" />
+			</javac>
+			<javac target="1.8" source="1.8" destdir="${build.dir}" debug="true" srcdir="${src.dir}">
+				<classpath refid="compile.classpath" />
+			</javac>
+		</target>
+		<target name="if_unix" depends="checkos" if="isLinux">
+			<javac target="1.8" source="1.8" destdir="${build.dir}" debug="true" srcdir="${src.dir}" fork="yes" executable="/opt/java7/bin/javac" compiler="javac1.7">
+				<classpath refid="compile.classpath" />
+			</javac>
+		</target>
+		<target name="copy" depends="compile">
+			<copy todir="${build.dir}">
+				<fileset dir="${basedir}">
+					<include name="*.properties" />
+				</fileset>			
+			</copy>
+		</target>
+		<target name="war" depends="copy">
+			<war destfile="${dist.dir}/crime.war" webxml="WebContent/WEB-INF/web.xml">
+				<fileset dir="WebContent">
+					<include name="WEB-INF/rest-servlet.xml" />
+				</fileset>
+				<fileset dir="WebContent" />
+				<lib dir="${lib.dir}" />
+				<classes dir="${build.dir}" />
+			</war>
+		</target>
+		
+</project>
+	
